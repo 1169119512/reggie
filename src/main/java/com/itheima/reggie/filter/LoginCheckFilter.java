@@ -34,8 +34,7 @@ public class LoginCheckFilter implements Filter {
                 "/front/**",
                 "/common/**",
                 "/user/sendMsg",        //移动端发送短信
-                "/user/login",           //移动端登录
-                "/favicon.ico"
+                "/user/login"           //移动端登录
         };
 
 
