@@ -3,6 +3,8 @@ package com.itheima.reggie.controller;
 
 import com.itheima.reggie.common.R;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.reflect.FieldUtils;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,11 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * 文件的上传和下载
@@ -28,8 +28,8 @@ import java.util.UUID;
 @Slf4j
 @RequestMapping("/common")
 public class CommonController {
-    @Value("${reggie.path}")
-    private String basePath;
+//    @Value("${reggie.path}")
+//    private String basePath;
 
 
     /**
@@ -46,9 +46,14 @@ public class CommonController {
         String fileName = UUID.randomUUID().toString()+suffix;
 
 //        //Linux上面部署为jar包,在Linux中无法直接访问未经解压的文件，所以就会找不到文件
-//        String basePath =this.getClass().getClassLoader().getResource("static/img/").getPath();//获取文件路径;
-//        //无法用来上传文件到jar包
-//        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/");
+        String basePath =this.getClass().getClassLoader().getResource("static/img/").getPath();//获取文件路径;
+//        //无法用来上传文件到jar包 --假如参数是文件夹，就只能获取文件夹里的内容;是文件：获取文件的路径
+//        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img");
+//        String basePath = new BufferedReader(new InputStreamReader(inputStream))
+//                .lines().collect(Collectors.joining(System.lineSeparator()));
+//        int lastIndex = fileName.lastIndexOf("/");
+//        String basePath = fileName.substring(0,lastIndex);
+
         File dir = new File(basePath);
         if(!dir.exists()){
             dir.mkdirs();
@@ -79,19 +84,19 @@ public class CommonController {
 //            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
 //            log.info(fileName);
             //用basePath+name方式并不好，因为在每个系统都需要自己设置好，但这是目前唯一的选择
-            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
+//            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
             //这个方式也有问题，无法读取到上传的图片
-//            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/"+name);
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/"+name);
             ServletOutputStream outputStream = response.getOutputStream();
 
             response.setContentType("image/jpeg");
             byte[] bytes = new byte[1024];
             int len = 0;
-            while ((len = (fileInputStream.read(bytes)))!= -1){
+            while ((len = (inputStream.read(bytes)))!= -1){
                 outputStream.write(bytes);
                 outputStream.flush();
             }
-            fileInputStream.close();
+            inputStream.close();
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
