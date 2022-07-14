@@ -26,8 +26,8 @@ import java.util.UUID;
 @Slf4j
 @RequestMapping("/common")
 public class CommonController {
-    @Value("${reggie.path}")
-    private String basePath;
+//    @Value("${reggie.path}")
+//    private String basePath;
 
 
     /**
@@ -39,12 +39,11 @@ public class CommonController {
     @PostMapping("/upload")
     public R<String> upload(MultipartFile file){
         log.info(file.toString());
-
         String originalFileName = file.getOriginalFilename();
         String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
-
-
         String fileName = UUID.randomUUID().toString()+suffix;
+
+        String basePath =this.getClass().getClassLoader().getResource("static/img/").getPath();//获取文件路径;
 
         File dir = new File(basePath);
         if(!dir.exists()){
@@ -71,9 +70,10 @@ public class CommonController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
         try {
-//            String fileName =this.getClass().getClassLoader().getResource(name).getPath();//获取文件路径;
-//            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
-            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
+            String fileName =this.getClass().getClassLoader().getResource("static/img/"+name).getPath();//获取文件路径;
+            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
+            log.info(fileName);
+//            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
             ServletOutputStream outputStream = response.getOutputStream();
 
             response.setContentType("image/jpeg");
