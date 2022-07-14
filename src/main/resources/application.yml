@@ -26,3 +26,4 @@ mybatis-plus:
 #  path: D:\game\myCode\springbootLearning\reggie_take_out\src\main\resources\static\img\
 #  左斜杠也可以用,因为是拼接在一起的，所以需要最后的/
 #  path: D:/game/myCode/springbootLearning/reggie_take_out/src/main/resources/static/img/
+# 测试是否拉取最新代码
