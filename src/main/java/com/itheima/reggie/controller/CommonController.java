@@ -78,19 +78,20 @@ public class CommonController {
 //            String fileName =this.getClass().getClassLoader().getResource("static/img/"+name).getPath();//获取文件路径;
 //            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
 //            log.info(fileName);
-            //用basePath+name方式并不好，因为在每个系统都需要自己设置好
-//            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
-            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/");
+            //用basePath+name方式并不好，因为在每个系统都需要自己设置好，但这是目前唯一的选择
+            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
+            //这个方式也有问题，无法读取到上传的图片
+//            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/"+name);
             ServletOutputStream outputStream = response.getOutputStream();
 
             response.setContentType("image/jpeg");
             byte[] bytes = new byte[1024];
             int len = 0;
-            while ((len = (inputStream.read(bytes)))!= -1){
+            while ((len = (fileInputStream.read(bytes)))!= -1){
                 outputStream.write(bytes);
                 outputStream.flush();
             }
-            inputStream.close();
+            fileInputStream.close();
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
