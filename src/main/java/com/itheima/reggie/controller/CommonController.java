@@ -15,19 +15,21 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.UUID;
 
 /**
  * 文件的上传和下载
- *
+ *由于图片文件读取是从jar包里读取，因此无法在jar包进行文件上传，而且无法使用getResource，需要使用相对路径，
+ * 而文件下载必须使用getResourceAsStream，因为linux使用getResource不能访问jar包;
  *
  */
 @RestController
 @Slf4j
 @RequestMapping("/common")
 public class CommonController {
-//    @Value("${reggie.path}")
-//    private String basePath;
+    @Value("${reggie.path}")
+    private String basePath;
 
 
     /**
@@ -43,8 +45,10 @@ public class CommonController {
         String suffix = originalFileName.substring(originalFileName.lastIndexOf("."));
         String fileName = UUID.randomUUID().toString()+suffix;
 
-        String basePath =this.getClass().getClassLoader().getResource("static/img/").getPath();//获取文件路径;
-
+//        //Linux上面部署为jar包,在Linux中无法直接访问未经解压的文件，所以就会找不到文件
+//        String basePath =this.getClass().getClassLoader().getResource("static/img/").getPath();//获取文件路径;
+//        //无法用来上传文件到jar包
+//        InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/");
         File dir = new File(basePath);
         if(!dir.exists()){
             dir.mkdirs();
@@ -70,20 +74,23 @@ public class CommonController {
     @GetMapping("/download")
     public void download(String name, HttpServletResponse response){
         try {
-            String fileName =this.getClass().getClassLoader().getResource("static/img/"+name).getPath();//获取文件路径;
-            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
-            log.info(fileName);
+            //Linux上面部署为jar包,在Linux中无法直接访问未经解压的文件，所以就会找不到文件
+//            String fileName =this.getClass().getClassLoader().getResource("static/img/"+name).getPath();//获取文件路径;
+//            FileInputStream fileInputStream = new FileInputStream(new File(fileName));
+//            log.info(fileName);
+            //用basePath+name方式并不好，因为在每个系统都需要自己设置好
 //            FileInputStream fileInputStream = new FileInputStream(new File(basePath+name));
+            InputStream inputStream = this.getClass().getClassLoader().getResourceAsStream("static/img/");
             ServletOutputStream outputStream = response.getOutputStream();
 
             response.setContentType("image/jpeg");
             byte[] bytes = new byte[1024];
             int len = 0;
-            while ((len = (fileInputStream.read(bytes)))!= -1){
+            while ((len = (inputStream.read(bytes)))!= -1){
                 outputStream.write(bytes);
                 outputStream.flush();
             }
-            fileInputStream.close();
+            inputStream.close();
             outputStream.close();
         } catch (Exception e) {
             e.printStackTrace();
