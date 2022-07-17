@@ -144,22 +144,26 @@ public class DishController{
         return R.success("修改成功");
    }
 
-   //使用redis缓存菜品数据
+   //使用redis缓存菜品数据，status不能为空，因此用Dish类封装数据,不需要使用requestbody,因为数值在url里
    @GetMapping("/list")
-    public R<List<DishDto>> getById(long categoryId, int status){
+    public R<List<DishDto>> getById(Dish dish){
         log.info("根据菜品分类获取所有的菜品");
        ValueOperations valueOperations = redisTemplate.opsForValue();
-       String key = categoryId+"_"+status;
+       String key = null;
+       //当没有status时就是在添加套餐时获取数据，不需要写入redis里
+       if(dish.getStatus() != null)
+       key = dish.getCategoryId()+"_"+dish.getStatus();
+       else
+           key = dish.getCategoryId()+"_";
        List<DishDto> dishDtos = null;
        if(valueOperations.get(key)!=null){
            dishDtos = (List<DishDto>) valueOperations.get(key);
        }
        else {
            LambdaQueryWrapper<Dish> queryWrapper = new LambdaQueryWrapper<>();
-           queryWrapper.eq(Dish::getCategoryId,categoryId);
-           queryWrapper.eq(Dish::getStatus,1);
+           queryWrapper.eq(Dish::getCategoryId,dish.getCategoryId());
            queryWrapper.orderByDesc(Dish::getUpdateTime);
-           queryWrapper.eq((Integer)status!= null,Dish::getStatus,status);
+           queryWrapper.eq((Integer)dish.getStatus()!= null,Dish::getStatus,dish.getStatus());
            List<Dish> dishes = dishService.list(queryWrapper);
            dishDtos = dishes.stream().map((item)->{
                DishDto dishDto = new DishDto();
@@ -176,7 +180,7 @@ public class DishController{
                Category category = categoryService.getById(item.getCategoryId());
                item.setCategoryName(category.getName());
            });
-           valueOperations.set(categoryId+"_"+status,dishes,60, TimeUnit.MINUTES);
+           valueOperations.set(dish.getCategoryId()+"_"+dish.getStatus(),dishDtos,60, TimeUnit.MINUTES);
        }
 
        return R.success(dishDtos);
@@ -212,7 +216,6 @@ public class DishController{
             Dish dish = dishService.getById(id);
             //如果keys=*,那么就是当菜品更新时就删除所有缓存//
             // Set Keys = redisTemplate.keys("dish_*");
-
             Set keys = redisTemplate.keys(dish.getCategoryId() + "_1" );
             redisTemplate.delete(keys);
             dishService.remove(id);

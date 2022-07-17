@@ -16,6 +16,8 @@ import com.itheima.reggie.service.SetmealDishService;
 import com.itheima.reggie.service.SetmealService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -68,6 +70,8 @@ public class SetmealController {
         return R.success(setmealDtoPage);
     }
 
+    //删除所有套餐缓存
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @Transactional
     @PostMapping
     public R<String> save(@RequestBody SetmealDto setmealDto){
@@ -92,6 +96,8 @@ public class SetmealController {
         return R.success(setmealDto);
     }
 
+    //删除所有套餐缓存
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @PutMapping
     public R<String> update(@RequestBody SetmealDto setmealDto){
         log.info("修改套餐");
@@ -99,6 +105,8 @@ public class SetmealController {
         return R.success("修改成功");
     }
 
+    //删除所有套餐缓存
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @Transactional
     @PostMapping("/status/{status}")
     public R<String> updateSetmealToStopSelling(@PathVariable int status, @RequestParam List<Long> ids){
@@ -112,7 +120,8 @@ public class SetmealController {
         return R.success("成功修改套餐状态");
     }
 
-
+    //删除所有套餐缓存
+    @CacheEvict(value = "setmealCache",allEntries = true)
     @Transactional
     @DeleteMapping
     public R<String> removeById(@RequestParam List<Long> ids){
@@ -123,11 +132,13 @@ public class SetmealController {
         return R.success("删除套餐成功");
     }
 
+//当status为空时，这个请求就会报错不能进来这个方法内:会报500错误，因此使用实体类封装更好
+    @Cacheable(value = "setmealCache", key = "#setmeal.categoryId+'_'+#setmeal.status")
     @GetMapping("/list")
-    public R<List<Setmeal>> list(long categoryId, int status){
+    public R<List<Setmeal>> list(Setmeal setmeal){
         LambdaQueryWrapper<Setmeal> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(Setmeal::getCategoryId,categoryId);
-        queryWrapper.eq((Integer)status != null,Setmeal::getStatus,status);
+        queryWrapper.eq(Setmeal::getCategoryId,setmeal.getCategoryId());
+        queryWrapper.eq((Integer)setmeal.getStatus() != null,Setmeal::getStatus,setmeal.getStatus());
         List<Setmeal> setmeals = setmealService.list(queryWrapper);
         return R.success(setmeals);
     }
