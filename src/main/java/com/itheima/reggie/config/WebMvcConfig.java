@@ -13,6 +13,7 @@ import java.util.List;
 //说明是配置类
 @Slf4j
 @Configuration
+
 public class WebMvcConfig extends WebMvcConfigurationSupport {
     /**
      *
