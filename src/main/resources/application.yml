@@ -18,7 +18,7 @@ spring:
       master:
         type: com.alibaba.druid.pool.DruidDataSource
         driver-class-name: com.mysql.cj.jdbc.Driver
-        url: jdbc:mysql://localhost:3306/reggie?characterEncoding=utf-8
+        url: jdbc:mysql://192.168.28.131:3306/reggie?characterEncoding=utf-8
         username: root
         password: 123456
       # 从数据源
@@ -44,7 +44,7 @@ spring:
     allow-bean-definition-overriding: true # 德鲁伊连接池和sharding-jdbc连接池都创建了dataSource，因此需要允许覆盖
 
   redis:
-    host: localhost
+    host: 222.16.29.198
     port: 6379
     database: 0
   cache:
@@ -61,9 +61,9 @@ mybatis-plus:
     db-config:
       id-type: ASSIGN_ID
 reggie:
-#  path: /usr/local/app/img/
+  path: /usr/local/app/img/
 # path:
 #  path: D:\game\myCode\springbootLearning\reggie_take_out\src\main\resources\static\img\
 #  左斜杠也可以用,因为是拼接在一起的，所以需要最后的“/”
-  path: D:/game/myCode/springbootLearning/reggie_take_out/src/main/resources/static/img/
+#  path: D:/game/myCode/springbootLearning/reggie_take_out/src/main/resources/static/img/
 #  path: /resources/static/img/
