@@ -46,7 +46,8 @@ spring:
   redis:
     host: 222.16.29.198
     port: 6379
-    database: 0
+    database: 1
+
   cache:
     redis:
       time-to-live: 1800000      #设置过期时间，可选，单位毫秒
