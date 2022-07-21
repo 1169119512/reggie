@@ -12,6 +12,10 @@ import com.itheima.reggie.entity.Setmeal;
 import com.itheima.reggie.service.CategoryService;
 import com.itheima.reggie.service.DishFlavorService;
 import com.itheima.reggie.service.DishService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -30,6 +34,7 @@ import java.util.stream.Collectors;
 @Slf4j
 @RestController
 @RequestMapping("dish")
+@Api(tags = "菜品相关接口")
 public class DishController{
     @Resource
  private DishService dishService;
@@ -51,7 +56,8 @@ public class DishController{
 
 
     @PostMapping
-   public R<String> save(@RequestBody DishDto dishDto){
+    @ApiOperation(value = "保存菜品接口")
+    public R<String> save(@RequestBody DishDto dishDto){
        log.info(dishDto.toString());
         //如果keys=*,那么就是当菜品更新时就删除所有缓存
         //       Set Keys = redisTemplate.keys("dish_*");
@@ -64,7 +70,13 @@ public class DishController{
 
 
    @GetMapping("/page")
-    public R<Page> page(int page, int pageSize, String name){
+   @ApiOperation(value = "菜品分类分页接口")
+   @ApiImplicitParams({
+           @ApiImplicitParam(name="page",value = "页码",required = true),
+           @ApiImplicitParam(name="pageSize",value = "每页记录数",required = true),
+           @ApiImplicitParam(name="name",value = "要搜索的菜品名字",required = false),
+   })
+   public R<Page> page(int page, int pageSize, String name){
         log.info("具体菜类信息查询");
         //构建分页构建器
         Page<Dish> pageInfo = new Page<Dish>(page,pageSize);
@@ -104,6 +116,7 @@ public class DishController{
    }
 
    @GetMapping("/{id}")
+   @ApiOperation(value = "展示菜品接口")
    public R<DishDto> getById(@PathVariable Long id){
         log.info("进行菜品回显");
        Dish dish = dishService.getById(id);
@@ -129,7 +142,8 @@ public class DishController{
 
     //修改菜品同时删除缓存,要删除修改前和修改后的菜品缓存
    @PutMapping
-    public R<String> update(@RequestBody DishDto dishDto){
+   @ApiOperation(value = "修改菜品分类接口")
+   public R<String> update(@RequestBody DishDto dishDto){
         log.info("修改菜品");
         log.info(dishDto.toString());
        //如果keys=*,那么就是当菜品更新时就删除所有缓存
@@ -146,7 +160,8 @@ public class DishController{
 
    //使用redis缓存菜品数据，status不能为空，因此用Dish类封装数据,不需要使用requestbody,因为数值在url里
    @GetMapping("/list")
-    public R<List<DishDto>> getById(Dish dish){
+   @ApiOperation(value = "展示菜品list接口")
+   public R<List<DishDto>> getById(Dish dish){
         log.info("根据菜品分类获取所有的菜品");
        ValueOperations valueOperations = redisTemplate.opsForValue();
        String key = null;
@@ -191,7 +206,8 @@ public class DishController{
 
    @Transactional
     @PostMapping("/status/{status}")
-    public R<String> updateSetmealTobeiginSelling(@PathVariable("status") int status ,@RequestParam List<Long> ids){
+   @ApiOperation(value = "修改菜品状态接口")
+   public R<String> updateSetmealTobeiginSelling(@PathVariable("status") int status ,@RequestParam List<Long> ids){
         log.info("修改菜品状态为启售或停售");
         ids.stream().forEach((id)->{
             Dish dish = dishService.getById(id);
@@ -210,6 +226,7 @@ public class DishController{
     //删除菜品要删除对应菜品分类的缓存
     @Transactional
     @DeleteMapping
+    @ApiOperation(value = "删除菜品分类接口")
     public R<String> remove(@RequestParam List<Long> ids){
         log.info("删除选中菜品");
         ids.stream().forEach((id)->{

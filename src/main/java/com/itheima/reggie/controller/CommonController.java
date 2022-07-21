@@ -2,6 +2,8 @@ package com.itheima.reggie.controller;
 
 
 import com.itheima.reggie.common.R;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.reflect.FieldUtils;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 @RestController
 @Slf4j
 @RequestMapping("/common")
+@Api(tags = "文件上传或下载相关接口")
 public class CommonController {
     @Value("${reggie.path}")
     private String basePath;
@@ -39,6 +42,7 @@ public class CommonController {
      * @return
      */
     @PostMapping("/upload")
+    @ApiOperation(value = "文件上传接口")
     public R<String> upload(MultipartFile file){
         log.info(file.toString());
         String originalFileName = file.getOriginalFilename();
@@ -77,6 +81,7 @@ public class CommonController {
      * @param response
      */
     @GetMapping("/download")
+    @ApiOperation(value = "文件下载接口")
     public void download(String name, HttpServletResponse response){
         try {
             //Linux上面部署为jar包,在Linux中无法直接访问未经解压的文件，所以就会找不到文件

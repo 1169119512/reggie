@@ -7,6 +7,8 @@ import com.itheima.reggie.entity.User;
 import com.itheima.reggie.service.UserService;
 import com.itheima.reggie.utils.SMSUtils;
 import com.itheima.reggie.utils.ValidateCodeUtils;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -25,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 @RestController
 @RequestMapping("/user")
+@Api(tags = "用户相关接口")
 public class UserController {
 
     @Resource
@@ -34,6 +37,7 @@ public class UserController {
     private RedisTemplate redisTemplate;
 
     @PostMapping("sendMsg")
+    @ApiOperation(value = "发送验证码接口")
     public R<String> sendMsg(@RequestBody User user, HttpSession session){
         //        获取手机号
         String phone = user.getPhone();
@@ -98,6 +102,7 @@ public class UserController {
 //    }
 
     @PostMapping("login")
+    @ApiOperation(value = "用户登录接口")
     public R<User> login(@RequestBody Map map, HttpSession session){
         String phone = null;
 //                 获取手机号
@@ -118,6 +123,7 @@ public class UserController {
     }
 
     @PostMapping("loginout")
+    @ApiOperation(value = "用户退出登录接口")
     public R<String> loginout(HttpSession session){
         session.removeAttribute("user");
         return R.success("退出成功");

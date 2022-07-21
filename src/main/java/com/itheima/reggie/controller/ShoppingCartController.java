@@ -5,6 +5,8 @@ import com.itheima.reggie.common.BaseContext;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.ShoppingCart;
 import com.itheima.reggie.service.ShoppingCartService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @Slf4j
 @RestController
 @RequestMapping("/shoppingCart")
+@Api(tags = "购物车相关接口")
 public class ShoppingCartController {
 
     @Resource
@@ -37,6 +40,7 @@ public class ShoppingCartController {
      * @return
      */
     @PostMapping("/add")
+    @ApiOperation(value = "购物车新增菜品/套餐接口")
     public R<ShoppingCart> add(@RequestBody ShoppingCart shoppingCart, HttpSession session){
 //        Long user = (Long) session.getAttribute("user");
         Long user = BaseContext.getCurrentId();
@@ -83,6 +87,7 @@ public class ShoppingCartController {
     }
 
     @GetMapping("/list")
+    @ApiOperation(value = "根据用户id展示购物车订单接口")
     public R<List<ShoppingCart>> list(HttpSession session){
 //        Long user = (Long) session.getAttribute("user");
         Long user = BaseContext.getCurrentId();
@@ -95,6 +100,7 @@ public class ShoppingCartController {
 
 
     @PostMapping("/sub")
+    @ApiOperation(value = "删除购物车菜品/套餐接口")
     public R<ShoppingCart> sub(@RequestBody ShoppingCart shoppingCart,HttpSession session){
         Long user = BaseContext.getCurrentId();
 //        Long user = (long) session.getAttribute("user");
@@ -122,6 +128,7 @@ public class ShoppingCartController {
 
     @Transactional
     @DeleteMapping("/clean")
+    @ApiOperation(value = "清空购物车接口")
     public R<String> clean(HttpSession session){
         Long user = BaseContext.getCurrentId();
 //        Long user = (long) session.getAttribute("user");

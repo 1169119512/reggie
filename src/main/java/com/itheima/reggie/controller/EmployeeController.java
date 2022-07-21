@@ -6,6 +6,10 @@ import com.itheima.reggie.common.BaseContext;
 import com.itheima.reggie.common.R;
 import com.itheima.reggie.entity.Employee;
 import com.itheima.reggie.service.EmployeeService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.util.DigestUtils;
@@ -18,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 @RestController
 @RequestMapping("/employee")
+@Api(tags = "员工相关接口")
 public class EmployeeController {
     @Resource
     private EmployeeService employeeService;
@@ -29,6 +34,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping("/login")
+    @ApiOperation(value = "员工登录接口")
     public R<Employee> login(HttpServletRequest request,@RequestBody Employee employee){
 //        1、将页面提交的密码password进行md5加密处理
         String password = employee.getPassword();
@@ -57,6 +63,7 @@ public class EmployeeController {
     }
 
     @PostMapping("/logout")
+    @ApiOperation(value = "员工退出登录接口")
     public R<String> logout(HttpServletRequest request){
 //        1、清理Session中的用户id
         request.getSession().removeAttribute("employee");
@@ -72,6 +79,7 @@ public class EmployeeController {
      * @return
      */
     @PostMapping
+    @ApiOperation(value = "新增员工接口")
     public R<String> save(HttpServletRequest request,@RequestBody Employee employee){
         log.info("新增员工，员工信息：{}",employee);
 //        1、页面发送ajax请求，将新增员工页面中输入的数据以json的形式提交到服务端
@@ -89,6 +97,12 @@ public class EmployeeController {
     }
 
     @GetMapping("/page")
+    @ApiOperation(value = "员工信息分页接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="page",value = "页码",required = true),
+            @ApiImplicitParam(name="pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name="name",value = "要搜索的员工名字",required = false),
+    })
     public R<Page> page(int page, int pageSize, String name){
         log.info("page={}，pagesize={},name={}",page,pageSize,name);
         //构建分页构造器
@@ -106,6 +120,7 @@ public class EmployeeController {
 
     //修改员工
     @PutMapping
+    @ApiOperation(value = "修改员工接口")
     public R<String> update(@RequestBody Employee employee){
         //修改员工id的json数据精度丢失：long->String
         log.info(employee.toString());
@@ -126,6 +141,7 @@ public class EmployeeController {
      * @return
      */
     @GetMapping("/{id}")
+    @ApiOperation(value = "根据id获取员工信息接口")
     public R<Employee> getbyId(@PathVariable Long id){
         log.info("根据员工id查找");
         Employee employee = employeeService.getById(id);

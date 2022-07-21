@@ -7,6 +7,10 @@ import com.itheima.reggie.common.R;
 import com.itheima.reggie.dto.OrdersDto;
 import com.itheima.reggie.entity.*;
 import com.itheima.reggie.service.*;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,6 +26,7 @@ import java.util.stream.Collectors;
 @RestController
 @Slf4j
 @RequestMapping("/order")
+@Api(tags = "订单相关接口")
 public class OrdersController {
 
     @Resource
@@ -40,6 +45,7 @@ public class OrdersController {
     private ShoppingCartService shoppingCartService;
 
     @PostMapping("/submit")
+    @ApiOperation(value = "支付订单接口")
     public R<String> submit(@RequestBody Orders orders){
         ordersService.sumbit(orders);
         return R.success("订单支付完成");
@@ -47,6 +53,11 @@ public class OrdersController {
 
 
     @GetMapping("/userPage")
+    @ApiOperation(value = "订单分页查看接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="page",value = "页码",required = true),
+            @ApiImplicitParam(name="pageSize",value = "每页记录数",required = true),
+    })
     public R<Page> page(int page, int pageSize){
 //        Long userId = (long) session.getAttribute("user");
         Long userId = BaseContext.getCurrentId();
@@ -84,6 +95,14 @@ public class OrdersController {
     }
 
     @GetMapping("page")
+    @ApiOperation(value = "根据时间查询订单分页接口")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name="page",value = "页码",required = true),
+            @ApiImplicitParam(name="pageSize",value = "每页记录数",required = true),
+            @ApiImplicitParam(name="number",value = "订单号内包含数字",required = false),
+            @ApiImplicitParam(name="beginTime",value = "开始时间",required = false),
+            @ApiImplicitParam(name="endTime",value = "截止时间",required = false),
+    })
     public R<Page> page(int page, int pageSize, String number, String beginTime, String endTime){
         //LocalDateTime = 2022-07-11 00:00:00
         LocalDateTime begin =beginTime == null? null:
@@ -127,6 +146,7 @@ public class OrdersController {
     }
 
     @PutMapping
+    @ApiOperation(value = "修改订单状态接口")
     public R<String> statusTopost(@RequestBody Orders order){
         ordersService.updateById(order);
         return R.success("修改状态成功");
@@ -135,7 +155,8 @@ public class OrdersController {
 
 @Transactional
     @PostMapping("/again")
-    public R<String> again(@RequestBody Orders orders){
+@ApiOperation(value = "将当前一单的订单放入购物车接口")
+public R<String> again(@RequestBody Orders orders){
         log.info("再来一单：orders:{}",orders.toString());
         Long user = BaseContext.getCurrentId();
         orders = ordersService.getById(orders.getId());

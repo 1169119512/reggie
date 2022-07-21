@@ -33,8 +33,15 @@ public class LoginCheckFilter implements Filter {
                 "/backend/**",
                 "/front/**",
                 "/common/**",
-                "/user/sendMsg",        //移动端发送短信
-                "/user/login"           //移动端登录
+                //移动端发送短信
+                "/user/sendMsg",
+                //移动端登录
+                "/user/login",
+                //swagger接口文档不拦截
+                "/doc.html",
+                "/webjars/**",
+                "/swagger-resources",
+                "/v2/api-docs",
         };
 
 
@@ -81,5 +88,8 @@ public class LoginCheckFilter implements Filter {
         }
         return false;
     }
+
+
+
 
 }
